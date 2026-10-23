@@ -13,4 +13,4 @@ numpy>=1.24.0
 
 
 # Documentation & utils
-python-dotenv>=1.0.0 (optional, for environment variables)
+python-dotenv>=1.0.0  # optional, for environment variables
