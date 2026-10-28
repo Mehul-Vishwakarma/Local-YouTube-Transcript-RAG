@@ -1,4 +1,5 @@
 @echo off
+setlocal
 title YouTube AI Project - Runner
 cd /d "%~dp0"
 
@@ -12,7 +13,7 @@ echo Checking dependencies...
 python -c "import ollama" 2>nul
 if %errorlevel% neq 0 (
     echo.
-    echo [WARN] Ollama not detected. Please install: https://ollama.ai
+    echo [WARN] Ollama Python package not detected. Install dependencies first.
     echo.
 )
 
@@ -27,8 +28,13 @@ echo 3. RAG Only        - Question answering with LLM
 echo 4. Install Deps    - Install Python dependencies
 echo 5. Help            - Show this menu
 echo.
+if not "%1"=="" (
+    set "choice=%1"
+    goto dispatch
+)
 set /p choice="Select operation (1-5): "
 
+:dispatch
 echo.
 echo ==========================================
 
@@ -52,20 +58,25 @@ if "%video_id%"=="" (
     echo Skipping transcript fetch.
 ) else (
     echo Fetching transcript for %video_id%...
-    python src\fetch_transcript.py %video_id%
+    python src\fetch_transcript.py "%video_id%"
 )
 echo.
-echo [2/5] Chunking transcript...
-python src\chunker.py transcripts\*.txt
+echo [2/5] Chunking all transcripts...
+python src\chunker.py transcripts
 echo.
-echo [3/5] Generating embeddings...
+echo [3/5] Generating embeddings for every video index...
 python src\embed_chunks.py
 echo.
-echo [4/5] Running search...
-python src\search.py
+echo [4/5] Search and RAG question answering
+set /p question="Enter a question (or press Enter to skip): "
+if "%question%"=="" (
+    echo No question entered. Skipping search and RAG.
+    goto full_done
+)
+python src\search.py "%question%"
 echo.
-echo [5/5] Running RAG question answering...
-python src\rag.py
+python src\rag.py "%question%"
+:full_done
 echo.
 echo ==========================================
 echo FULL PIPELINE COMPLETE
@@ -98,10 +109,10 @@ goto end
 
 :help
 echo.
-echo Usage: run.bat
+echo Usage: run.bat [1-5]
 echo.
 echo Operations:
-echo   1) Full Pipeline  - Complete workflow: fetch -> chunk -> embed -> search -> RAG
+echo   1) Full Pipeline  - Complete workflow: fetch -^> chunk -^> embed -^> search -^> RAG
 echo   2) Search Only    - Hybrid search on existing embedded data
 echo   3) RAG Only       - LLM-powered question answering from transcripts
 echo   4) Install Deps   - Install Python dependencies

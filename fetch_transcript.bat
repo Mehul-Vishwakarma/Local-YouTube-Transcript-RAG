@@ -1,5 +1,6 @@
 @echo off
 setlocal
+cd /d "%~dp0"
 
 echo ==========================================
 echo   YouTube Transcript Fetcher
@@ -15,7 +16,7 @@ if "%VIDEO_ID%"=="" (
 )
 
 echo.
-python fetch_transcript.py "%VIDEO_ID%"
+python src\fetch_transcript.py "%VIDEO_ID%"
 
 echo.
 pause

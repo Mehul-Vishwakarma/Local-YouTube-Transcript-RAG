@@ -8,6 +8,9 @@ env/
 .pytest_cache/
 .cache/
 
+# Generated chunk indexes and embeddings
+chunks/
+
 # Secrets
 .env
 .env.*
